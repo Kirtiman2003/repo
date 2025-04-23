@@ -1,0 +1,1227 @@
+Q)
+Implement an inverted index construction algorithm for the following
+two documents
+document1 = "The computer science students are appearing for practical
+examination."
+document2 = "computer science practical examination will start
+tomorrow."
+Build a simple document retrieval system using the constructed index to
+find the documents containing terms “computer science”.
+
+import re
+import nltk
+from nltk.corpus import stopwords
+class Inverted_Index:
+    def __init__(self):
+        self.index = {}
+        self.docs = {}
+    def tokenize(self, text):
+        words = re.findall(r"\b\w+\b", text.lower())
+        stop_words = set(stopwords.words("english"))
+        filtered_words = set(x for x in words if x not in stop_words)
+        return filtered_words
+    def index_doc(self, doc_id, text):
+        tokens = self.tokenize(text)
+        for token in tokens:
+            if(token not in self.index):
+                self.index[token] = []
+            self.index[token].append(doc_id)
+        self.docs[doc_id] = text
+    def retrieve_doc(self, query):
+        tokens = self.tokenize(query)
+        rel_doc_id = set()
+        for token in tokens:
+            if(token in self.index):
+                rel_doc_id.update(self.index[token])
+        res = {}
+        for doc_id in rel_doc_id:
+            res[doc_id] = self.docs[doc_id]
+        return res
+    def disp(self, res, form):
+        print(f"{form} documents are:")
+        for doc_id, doc in res.items():
+            print(f"{doc_id} : {doc}")
+inverted_index = Inverted_Index()
+inverted_index.index_doc(1, "The computer science students are appearing for practical examination.")
+inverted_index.index_doc(2, "computer science practical examination will start tomorrow.")
+inverted_index.disp(inverted_index.docs, "Present")
+query = input("Please enter your query to retrieve documents: ")
+res = inverted_index.retrieve_doc(query)
+inverted_index.disp(res, "Retrieved")
+
+-----------------------------------------------------------------------------------------------------
+
+Q)
+Build a question-answering system using techniques such as information
+extraction.
+
+
+import nltk
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+documents = [
+    "The cat is on the mat.",
+    "The dog is in the yard.",
+    "A bird is flying in the sky.",
+    "The sun is shining brightly."
+]
+nltk.download('stopwords')
+stop_words = nltk.corpus.stopwords.words('english')
+def tokenize(text):
+    tokens = nltk.word_tokenize(text)
+    tokens = [token.lower() for token in tokens if token.isalnum()]
+    return tokens
+vectorizer = TfidfVectorizer(tokenizer=tokenize, stop_words=stop_words)
+tfidf_matrix = vectorizer.fit_transform(documents)
+def answer_question(query, documents, tfidf_matrix, vectorizer):
+    query_vector = vectorizer.transform([query])
+    similarities = cosine_similarity(query_vector, tfidf_matrix)
+    most_similar_idx = similarities.argmax()
+    return documents[most_similar_idx]
+query = "Where is the cat?"
+answer = answer_question(query, documents, tfidf_matrix, vectorizer)
+print("Answer:", answer)
+
+--------------------------------------------------------------------------------------
+
+Q)
+Implement an inverted index construction algorithm for the following
+two documents: [20]
+document1 = "The quick brown fox jumped over the lazy dog"
+document2 = "The lazy dog slept in the sun"
+Build a simple document retrieval system using the constructed index to
+find the documents containing terms “lazy sun”
+
+import re
+import nltk
+from nltk.corpus import stopwords
+class Inverted_Index:
+    def __init__(self):
+        self.index = {}
+        self.docs = {}
+    def tokenize(self, text):
+        words = re.findall(r"\b\w+\b", text.lower())
+        stop_words = set(stopwords.words("english"))
+        filtered_words = set(x for x in words if x not in stop_words)
+        return filtered_words
+    def index_doc(self, doc_id, text):
+        tokens = self.tokenize(text)
+        for token in tokens:
+            if(token not in self.index):
+                self.index[token] = []
+            self.index[token].append(doc_id)
+        self.docs[doc_id] = text
+    def retrieve_doc(self, query):
+        tokens = self.tokenize(query)
+        rel_doc_id = set()
+        for token in tokens:
+            if(token in self.index):
+                rel_doc_id.update(self.index[token])
+        res = {}
+        for doc_id in rel_doc_id:
+            res[doc_id] = self.docs[doc_id]
+        return res
+    def disp(self, res, form):
+        print(f"{form} documents are:")
+        for doc_id, doc in res.items():
+            print(f"{doc_id} : {doc}")
+inverted_index = Inverted_Index()
+inverted_index.index_doc(1, "The quick brown fox jumped over the lazy dog")
+inverted_index.index_doc(2, "The lazy dog slept in the sun")
+inverted_index.disp(inverted_index.docs, "Present")
+query = input("Please enter your query to retrieve documents: ")
+res = inverted_index.retrieve_doc(query)
+inverted_index.disp(res, "Retrieved")
+-------------------------------------------------------------------------------------------------------
+
+Q)
+Write a program to calculate precision, recall and F-measure where true
+positive is 60, false positive is 30 and false negative is 20
+Recall= TP /TP+FN
+Precision = TP / TP+FP
+F-score = 2 * (Precision * Recall) / (Precision + Recall)
+
+import random
+class EM:
+    def __init__(self):
+        total = int(input("Total number of documents:"))
+        ret = int(input("Total number of retrieved documents:"))
+        rel = int(input("Total number of relevant documents:"))
+        self.docs = set([f"d{x+1}" for x in range(total)])
+        print("Documents:", self.docs)
+        self.ret_set = set(random.sample(list(self.docs), ret))
+        print("Retrieved documents:", self.ret_set)
+        self.rel_set = set(random.sample(list(self.docs), rel))
+        print("Relevant documents:", self.rel_set)
+    def cal_metrics(self):
+        tp = len(self.ret_set.intersection(self.rel_set))
+        tn = len(self.docs.difference(self.ret_set.union(self.rel_set)))
+        fp= len(self.ret_set.difference(self.rel_set)) 
+        fn = len(self.rel_set.difference(self.ret_set))
+        print("True Positive:", tp)
+        print("True Negative:", tn)
+        print("False Positive:", fp)
+        print("False Negative:", fn)
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+        f_measure = 2 * precision * recall / (precision + recall)
+        accuracy = (tp + tn) / (tp + tn + fp + fn)
+        print("Precision:", precision)
+        print("Recall:",  recall)
+        print("F-measure:", f_measure)
+        print("Accuracy:", accuracy)
+em = EM()
+em.cal_metrics()
+
+from sklearn.metrics import average_precision_score
+y_true = [0, 1, 1, 0, 1, 1]
+y_score = [0.1, 0.4, 0.35, 0.8, 0.65, 0.9]
+avg_precision = average_precision_score(y_true, y_score)
+print(f"Average precision-recall score: {avg_precision:.6f}")
+
+-------------------------------------------------------------------------------------
+
+Q)
+Develop a spelling correction module using edit distance algorithms and
+find the edit distance between strings “nature” and “creature”.
+
+def levenshtein_distance(str1,str2):
+    len_str1=len(str1)+1
+    len_str2=len(str2)+1
+    matrix=[[0 for _ in range(len_str2)] for _ in range(len_str1)]
+
+    for i in range(len_str1):
+        matrix[i][0]=i
+    for j in range(len_str2):
+        matrix[0][j]=j
+
+    for i in range(1,len_str1):
+        for j in range(1,len_str2):
+            cost=0 if str1[i-1]==str2[j-1] else 1
+            matrix[i][j]=min(
+                matrix[i-1][j]+1,
+                matrix[i][j-1]+1,
+                matrix[i-1][j-1]+cost
+                )
+    return matrix[len_str1-1][len_str2-1]
+def suggest_correction(word,word_list):
+    distances=[(w,levenshtein_distance(word,w))for w in word_list]
+    distances.sort(key=lambda x:x[1])
+    return distances[0][0]
+input_word="creature"
+dictionary=["nature","world","python","spell","correct","algorithm"]
+
+suggested_correction=suggest_correction(input_word,dictionary)
+print(f"Suggested Correction for '{input_word}': {suggested_correction}")
+
+def retrieve_information(query, dictionary):
+    query_words = query.split()
+    corrected_words = [suggest_correction(word, dictionary) for word in query_words]
+    corrected_query = ' '.join(corrected_words)
+    print(f"Retrieving information for corrected query: '{corrected_query}'")
+user_query = "speling correctin algorithm"
+dictionary = ["creature", "correction", "algorithm", "information", "retrieval", "system"]
+retrieve_information(user_query, dictionary)
+
+---------------------------------------------------------------------------------------------------------------------------
+Q)
+Implement the Boolean retrieval model for the following corpus.
+Document 1:The cat chased the dog around the garden.
+Document2: She was sitting in the garden last night.
+Document 3: I read the book the night before.
+Process the query “garden or night”.
+
+
+docs= {
+    1 : "The cat chased the dog around the garden",
+    2 : "She was sitting in the garden last night",
+    3 : "I read the book the night before",
+}
+def build_index(docs):
+    index={}
+    for num,text in docs.items():
+        terms=set(text.split())
+        for x in terms:
+            if x not in index:
+                index[x]={num}
+            else:
+                index[x].add(num)
+    return index
+inverted_index=build_index(docs)
+def boolean_and(operands,index):
+    if not operands:
+        return list(range(l,len(docs)+1))
+    res=index.get(operands[0],set())
+    for x in operands[1:]:
+        res=res.intersection(index.get(x,set()))
+    return list(res)
+def boolean_or(operands,index):
+    res=set()
+    for x in operands:
+        res=res.union(index.get(x,set()))
+    return list(res)
+def boolean_not(operand,index,total_docs):
+    operand_set=set(index.get(operand,set()))
+    all_docs_set=set(range(1,total_docs+1))
+    return list(all_docs_set.difference(operand_set))
+q1=["night"]
+q2=["garden"]
+r1=boolean_and(q1,inverted_index)
+r2=boolean_or(q2,inverted_index)
+r3=boolean_not("night",inverted_index,len(docs))
+print("Documents containing 'night' and 'garden': ",r1)
+--------------------------------------------------------------------------------------------
+
+Q)Develop a web crawler to fetch and index web pages. 
+
+
+import requests
+from bs4 import BeautifulSoup
+class WebCrawler:
+    def __init__(self):
+        self.visited_url = set()
+    def crawl(self, url, depth = 3):
+        if(depth == 0 or url in self.visited_url):
+            return
+        try:
+            res = requests.get(url)
+            if(res.status_code == 200):
+                soup = BeautifulSoup(res.text, "html.parser")
+                self.index_page(url, soup)
+                self.visited_url.add(url)
+                for link in soup.find_all("a"):
+                    new_url = link.get("href")
+                    print(f"Crawling : {new_url}")
+                    if(new_url and new_url.startswith("http")):
+                        self.crawl(new_url, depth - 1)
+        except Exception as e:
+            print(f"Error crawling {url} : {e}")
+    def index_page(self, url, soup):
+        title = soup.title.string if soup.title else "No title!"
+        para = soup.find("p").get_text() if soup.find("p") else "No para found!"
+        print(f"Indexing: {url}")
+        print(f"Title: {title}")
+        print(f"First Paragraph: {para}")
+        print("-"*60)
+crawler = WebCrawler()
+crawler.crawl("https://www.example.com")
+---------------------------------------------------------------------------------------------------
+
+Q)Handle challenges such as robots.txt, dynamic content, and crawling
+delays.
+
+import requests
+from bs4 import BeautifulSoup
+import time
+from urllib.parse import urlparse
+class WebCrawler:
+    def __init__(self):
+        self.visited_url = set()
+    def crawl(self, url, depth = 3, delay = 1):
+        if(depth == 0 or url in self.visited_url):
+            return
+        try:
+            if(not self.is_allowed_by_robots(url)):
+                print(f"Skipping {url} due to robots.txt rules.")
+                return
+            res = requests.get(url)
+            if(res.status_code == 200):
+                soup = BeautifulSoup(res.text, "html.parser")
+                self.index_page(url, soup)
+                self.visited_url.add(url)
+                for link in soup.find_all("a"):
+                    new_url = link.get("href")
+                    if(new_url and new_url.startswith("http")):
+                        time.sleep(delay)
+                        self.crawl(new_url, depth - 1, delay)
+        except Exception as e:
+            print(f"Error crawling {url} : {e}")
+    def is_allowed_by_robots(self, url):
+        parsed_url = urlparse(url)
+        robots_url = f"{parsed_url.scheme}://{parsed_url.netloc}/robots.txt"
+        res = requests.get(robots_url)
+        if(res.status_code == 200):
+            robots_txt = res.text
+            if("User-agent: *" in robots_txt):
+                start_index = robots_txt.find("User-agent: *")
+                end_index = robots_txt.find("User-agent:", start_index + 1)
+                if(end_index == -1):
+                    end_index = len(robots_txt)
+                relevant_section = robots_txt[start_index: end_index]
+                if("Disallow:/" in relevant_section):
+                    return False
+        return True
+    def index_page(self, url, soup):
+        title = soup.title.string if soup.title else "No title!"
+        para = soup.find("p").get_text() if soup.find("p") else "No paragraph found!"
+        print(f"Indexing: {url}")
+        print(f"Title: {title}")
+        print(f"First Paragraph: {para}")
+        print("-"*60)
+crawler = WebCrawler()
+crawler.crawl("https://10fastfingers.com/typing-test/english")
+
+---------------------------------------------------------------------------------------------
+
+Q)Consider a simplified web graph with the following link structure:
+• Page A has links to pages B, C, and D.
+• Page B has links to pages C and E.
+• Page C has links to pages A and D.
+Apply the PageRank algorithm and analyze the results.
+
+
+def page_rank(graph, damping_factor = 0.85, epsilon = 1.0e-8, max_iterations = 100):
+    num_nodes = len(graph)
+    pagerank_scores = {node: 1.0 / num_nodes for node in graph}
+    for _ in range(max_iterations):
+        new_pagerank_scores = {}
+        max_diff = 0
+        for node in graph:
+            new_pagerank = (1 - damping_factor) / num_nodes
+            for referring_page, links in graph.items():
+                if node in links:
+                    num_outlinks = len(links)
+                    new_pagerank += damping_factor * pagerank_scores[referring_page] / num_outlinks
+            new_pagerank_scores[node] = new_pagerank
+            diff = abs(new_pagerank - pagerank_scores[node])
+            max_diff = max(max_diff, diff)
+        pagerank_scores = new_pagerank_scores
+        if(max_diff < epsilon):
+            break
+    return pagerank_scores
+web_graph = {
+    "A" : ["B", "C","D"],
+    "B" : ["C","E"],
+    "C" : ["A","D"],
+}
+pagerank_scores = page_rank(web_graph)
+sorted_scores = sorted(pagerank_scores.items(), key = lambda x: x[1], reverse = True)
+print("PageRank Scores:")
+for node, score in sorted_scores:
+    print(f"{node}: {score}")
+------------------------------------------------------------------------------------------------------
+
+Q)
+Consider a web graph with the following link structure:
+• Page A has links to pages B and C.
+• Page B has links to pages C and D.
+• Page C has links to pages A and D.
+• Page D has a link to page B
+Apply the PageRank algorithm and analyze the results.
+
+
+def page_rank(graph, damping_factor = 0.85, epsilon = 1.0e-8, max_iterations = 100):
+    num_nodes = len(graph)
+    pagerank_scores = {node: 1.0 / num_nodes for node in graph}
+    for _ in range(max_iterations):
+        new_pagerank_scores = {}
+        max_diff = 0
+        for node in graph:
+            new_pagerank = (1 - damping_factor) / num_nodes
+            for referring_page, links in graph.items():
+                if node in links:
+                    num_outlinks = len(links)
+                    new_pagerank += damping_factor * pagerank_scores[referring_page] / num_outlinks
+            new_pagerank_scores[node] = new_pagerank
+            diff = abs(new_pagerank - pagerank_scores[node])
+            max_diff = max(max_diff, diff)
+        pagerank_scores = new_pagerank_scores
+        if(max_diff < epsilon):
+            break
+    return pagerank_scores
+web_graph = {
+    "A" : ["B", "C"],
+    "B" : ["C","D"],
+    "C" : ["A","D"],
+    "D" : ["B"]
+}
+pagerank_scores = page_rank(web_graph)
+sorted_scores = sorted(pagerank_scores.items(), key = lambda x: x[1], reverse = True)
+print("PageRank Scores:")
+for node, score in sorted_scores:
+    print(f"{node}: {score}")
+--------------------------------------------------------------------------------------------------------------------------------
+
+Q)Implement a text summarization algorithm (e.g., extractive or
+abstractive).
+
+
+import nltk
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+from nltk.probability import FreqDist
+from nltk.tokenize import RegexpTokenizer
+from nltk.cluster.util import cosine_distance
+import numpy as np
+nltk.download('punkt')
+nltk.download('stopwords')
+def sentence_similarity(sent1, sent2):
+    stopwords_list = stopwords.words('english')
+    word_vector1 = [word.lower() for word in sent1 if word.lower() not in stopwords_list]
+    word_vector2 = [word.lower() for word in sent2 if word.lower() not in stopwords_list]
+    all_words = list(set(word_vector1 + word_vector2))
+    vector1 = [0] * len(all_words)
+    vector2 = [0] * len(all_words)
+    for word in word_vector1:
+        vector1[all_words.index(word)] += 1
+    for word in word_vector2:
+        vector2[all_words.index(word)] += 1
+    return 1 - cosine_distance(vector1, vector2)
+
+def build_similarity_matrix(sentences):
+    similarity_matrix = np.zeros((len(sentences), len(sentences)))
+    for idx1 in range(len(sentences)):
+        for idx2 in range(len(sentences)):
+            if idx1 != idx2:
+                similarity_matrix[idx1][idx2] = sentence_similarity(sentences[idx1], sentences[idx2])
+    return similarity_matrix
+def generate_summary(text, num_sentences):
+    sentences = sent_tokenize(text)
+    sentence_tokens = [word_tokenize(sentence) for sentence in sentences]
+    similarity_matrix = build_similarity_matrix(sentence_tokens)
+    scores = np.array([np.sum(similarity_matrix[i]) for i in range(len(sentences))])
+    scores /= scores.sum()
+    ranked_sentences = [sentence for _, sentence in sorted(zip(scores, sentences), reverse=True)]
+    return " ".join(ranked_sentences[:num_sentences])
+
+text = """
+Natural language processing (NLP) is a subfield of linguistics, computer science, and artificial
+intelligence concerned with the interactions between computers and human language, in
+particular how to program computers to process and analyze large amounts of natural language
+data. The goal is to enable computers to understand, interpret, and generate human language in
+a way that is both meaningful and useful.
+Text summarization is the process of distilling the most important information from a source (or
+sources) to produce a concise and coherent summary. There are two main approaches to text
+summarization: extractive and abstractive. Extractive summarization involves selecting and
+combining key phrases or sentences from the source text, while abstractive summarization
+involves generating new sentences that capture the main ideas of the original text.
+TextRank is a popular algorithm for extractive text summarization. It is based on the PageRank
+algorithm used by Google to rank web pages in search results. TextRank works by treating
+sentences as nodes in a graph, with edges representing the similarity between sentences. The
+algorithm then iteratively calculates a score for each sentence based on the scores of its
+neighboring sentences, similar to how PageRank calculates the importance of web pages based
+on the links between them.
+In this example, we'll implement a simple extractive text summarization algorithm using
+TextRank and NLTK. We'll start by tokenizing the input text into sentences and words, then
+build a similarity matrix based on the cosine similarity between sentence vectors. Finally, we'll
+use PageRank to rank the sentences and select the top-ranked sentences as the summary.
+"""
+summary = generate_summary(text, num_sentences=3)
+print(summary)
+-------------------------------------------------------------------------------------------------------------------------------------
+Q)Implement cosine similarity to find similarity between following query
+and document
+query="gold silver truck"
+document="shipment of gold damaged in a gold fire" 
+
+import re
+from nltk.corpus import stopwords
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+class VSM:
+    def __init__(self):
+        self.docs = {}
+    def add_doc(self, doc_id, text):
+        self.docs[doc_id] = text
+    def tokenize(self, text):
+        words = re.findall(r"\b\w+\b", text.lower())
+        stop_words = set(stopwords.words("english"))
+        filtered_words = set(x for x in words if x not in stop_words)
+        return filtered_words
+    def cal_csm(self, query):
+        tokenized_docs = [self.tokenize(doc) for doc in self.docs.values()]
+        tokenized_query = self.tokenize(query)
+        preprocessed_docs = [" ".join(x) for x in tokenized_docs]
+        preprocessed_query = " ".join(tokenized_query)
+        vec = TfidfVectorizer()
+        matrix = vec.fit_transform(preprocessed_docs)
+        query_vec = vec.transform([preprocessed_query])
+        cos_sim = cosine_similarity(query_vec, matrix)
+        res = [(self.docs[i+1], cos_sim[0][i]) for i in range(2)]
+        res.sort(key = lambda x: x[1], reverse = True)
+        print(f"Query: {query}\n")
+        for doc, sim in res:
+            print(f"Similarity: {sim:.2f}\n{doc}\n")
+vsm = VSM()
+vsm.add_doc(1, "The sky is blue.")
+vsm.add_doc(2, "shipment of gold damaged in a gold fire")
+query = "gold silver truck"
+vsm.cal_csm(query)
+----------------------------------------------------------------------------------------------------------------
+
+Q)
+Implement the Boolean retrieval model for the following corpus [20]
+Document 1:BSc lectures start at 7.
+Document 2:My lectures are over.
+Document 3: Today is a holiday.
+Process the query “not lectures”
+
+
+docs= {
+    1 : "BSc lectures start at 7",
+    2 : "My  not lectures are over",
+    3 : "Today is a holiday",
+}
+def build_index(docs):
+    index={}
+    for num,text in docs.items():
+        terms=set(text.split())
+        for x in terms:
+            if x not in index:
+                index[x]={num}
+            else:
+                index[x].add(num)
+    return index
+inverted_index=build_index(docs)
+def boolean_and(operands,index):
+    if not operands:
+        return list(range(l,len(docs)+1))
+    res=index.get(operands[0],set())
+    for x in operands[1:]:
+        res=res.intersection(index.get(x,set()))
+    return list(res)
+def boolean_or(operands,index):
+    res=set()
+    for x in operands:
+        res=res.union(index.get(x,set()))
+    return list(res)
+def boolean_not(operand,index,total_docs):
+    operand_set=set(index.get(operand,set()))
+    all_docs_set=set(range(1,total_docs+1))
+    return list(all_docs_set.difference(operand_set))
+q1=["not"]
+q2=["lecture"]
+r1=boolean_and(q1,inverted_index)
+r2=boolean_or(q2,inverted_index)
+r3=boolean_not("lecture",inverted_index,len(docs))
+print("Documents containing 'not' and 'lecture': ",r1)
+---------------------------------------------------------------------------------------------------------------------
+Q)
+Implement the Boolean retrieval model for the following corpus [20]
+Document 1:The university exam is scheduled next week.
+Document2: The university of mumbai has declared the result.
+Process the query “university and Mumbai"
+
+
+docs= {
+    1 : "The university exam is scheduled next week.",
+    2 : "The university of mumbai has declared the result.",
+}
+def build_index(docs):
+    index={}
+    for num,text in docs.items():
+        terms=set(text.split())
+        for x in terms:
+            if x not in index:
+                index[x]={num}
+            else:
+                index[x].add(num)
+    return index
+inverted_index=build_index(docs)
+def boolean_and(operands,index):
+    if not operands:
+        return list(range(l,len(docs)+1))
+    res=index.get(operands[0],set())
+    for x in operands[1:]:
+        res=res.intersection(index.get(x,set()))
+    return list(res)
+def boolean_or(operands,index):
+    res=set()
+    for x in operands:
+        res=res.union(index.get(x,set()))
+    return list(res)
+def boolean_not(operand,index,total_docs):
+    operand_set=set(index.get(operand,set()))
+    all_docs_set=set(range(1,total_docs+1))
+    return list(all_docs_set.difference(operand_set))
+q1=["university"]
+q2=["mumbai"]
+r1=boolean_and(q1,inverted_index)
+r2=boolean_or(q2,inverted_index)
+r3=boolean_not("university",inverted_index,len(docs))
+print("Documents containing 'mumbai' and 'university': ",r1)
+--------------------------------------------------------------------------------------------------------------------------------
+Q)
+Implement the vector space model with TF-IDF weighting for the
+following corpus:
+Document 1: "Document about python programming language and data
+analysis.",
+Document 2: "Document discussing machine learning algorithms and
+programming techniques.",
+Document3: "Overview of natural language processing and its
+applications."
+query = "python programming"
+
+
+docs= {
+    1 :"Document about python programming language and data analysis.",
+    2: "Document discussing machine learning algorithms and programming techniques.",
+    3: "Overview of natural language processing and its applications."
+}
+def build_index(docs):
+    index={}
+    for num,text in docs.items():
+        terms=set(text.split())
+        for x in terms:
+            if x not in index:
+                index[x]={num}
+            else:
+                index[x].add(num)
+    return index
+inverted_index=build_index(docs)
+def boolean_and(operands,index):
+    if not operands:
+        return list(range(l,len(docs)+1))
+    res=index.get(operands[0],set())
+    for x in operands[1:]:
+        res=res.intersection(index.get(x,set()))
+    return list(res)
+def boolean_or(operands,index):
+    res=set()
+    for x in operands:
+        res=res.union(index.get(x,set()))
+    return list(res)
+def boolean_not(operand,index,total_docs):
+    operand_set=set(index.get(operand,set()))
+    all_docs_set=set(range(1,total_docs+1))
+    return list(all_docs_set.difference(operand_set))
+q1=["python"]
+q2=["programming"]
+r1=boolean_and(q1,inverted_index)
+r2=boolean_or(q2,inverted_index)
+r3=boolean_not("python programing",inverted_index,len(docs))
+print("Documents containing 'python' and 'programing': ",r1)
+--------------------------------------------------------------------------------------------------------------------
+Q)
+Implement the vector space model with TF-IDF weighting for the
+following corpus
+Document 1: "The sun is the star at the center of the solar system.",
+Document2: "She wore a beautiful dress to the party last night."
+Document 3: "The book on the table caught my attention immediately."
+query = "solar system"
+
+
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# === Corpus ===
+documents = [
+    "The sun is the star at the center of the solar system.",
+    "She wore a beautiful dress to the party last night.",
+    "The book on the table caught my attention immediately."
+]
+
+# === Query ===
+query = ["solar system"]
+
+# === Create TF-IDF Vectorizer ===
+vectorizer = TfidfVectorizer(lowercase=True, stop_words='english')
+
+# === Fit and Transform Documents + Query ===
+doc_vectors = vectorizer.fit_transform(documents + query)
+
+# === Separate Document Vectors and Query Vector ===
+doc_tfidf = doc_vectors[:-1]
+query_tfidf = doc_vectors[-1]
+
+# === Compute Cosine Similarity ===
+similarity_scores = cosine_similarity(query_tfidf, doc_tfidf)
+
+# === Display Results ===
+for idx, score in enumerate(similarity_scores[0]):
+    print(f"Document {idx + 1} Similarity: {score:.4f}")
+
+# === Ranking ===
+sorted_indices = np.argsort(similarity_scores[0])[::-1]
+print("\n--- Ranked Documents ---")
+for rank, idx in enumerate(sorted_indices, start=1):
+    print(f"Rank {rank}: Document {idx + 1} (Score: {similarity_scores[0][idx]:.4f})")
+
+
+Q)Calculate the cosine similarity between the query and each document
+from the above problem.
+
+
+import re
+from nltk.corpus import stopwords
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+class VSM:
+    def __init__(self):
+        self.docs = {}
+    def add_doc(self, doc_id, text):
+        self.docs[doc_id] = text
+    def tokenize(self, text):
+        words = re.findall(r"\b\w+\b", text.lower())
+        stop_words = set(stopwords.words("english"))
+        filtered_words = set(x for x in words if x not in stop_words)
+        return filtered_words
+    def cal_csm(self, query):
+        tokenized_docs = [self.tokenize(doc) for doc in self.docs.values()]
+        tokenized_query = self.tokenize(query)
+        preprocessed_docs = [" ".join(x) for x in tokenized_docs]
+        preprocessed_query = " ".join(tokenized_query)
+        vec = TfidfVectorizer()
+        matrix = vec.fit_transform(preprocessed_docs)
+        query_vec = vec.transform([preprocessed_query])
+        cos_sim = cosine_similarity(query_vec, matrix)
+        res = [(self.docs[i+1], cos_sim[0][i]) for i in range(2)]
+        res.sort(key = lambda x: x[1], reverse = True)
+        print(f"Query: {query}\n")
+        for doc, sim in res:
+            print(f"Similarity: {sim:.2f}\n{doc}\n")
+vsm = VSM()
+vsm.add_doc(1, "The sun is the star at the center of the solar system.")
+vsm.add_doc(2, "She wore a beautiful dress to the party last night.")
+vsm.add_doc(3, "The book on the table caught my attention immediately")
+query = "solar system"
+vsm.cal_csm(query)
+-----------------------------------------------------------------------------------------------------------
+Q)
+Use an evaluation toolkit to measure average precision and other
+evaluation metrics
+
+
+import random
+class EM:
+    def __init__(self):
+        total = int(input("Total number of documents:"))
+        ret = int(input("Total number of retrieved documents:"))
+        rel = int(input("Total number of relevant documents:"))
+        self.docs = set([f"d{x+1}" for x in range(total)])
+        print("Documents:", self.docs)
+        self.ret_set = set(random.sample(list(self.docs), ret))
+        print("Retrieved documents:", self.ret_set)
+        self.rel_set = set(random.sample(list(self.docs), rel))
+        print("Relevant documents:", self.rel_set)
+    def cal_metrics(self):
+        tp = len(self.ret_set.intersection(self.rel_set))
+        tn = len(self.docs.difference(self.ret_set.union(self.rel_set)))
+        fp= len(self.ret_set.difference(self.rel_set)) 
+        fn = len(self.rel_set.difference(self.ret_set))
+        print("True Positive:", tp)
+        print("True Negative:", tn)
+        print("False Positive:", fp)
+        print("False Negative:", fn)
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+        f_measure = 2 * precision * recall / (precision + recall)
+        accuracy = (tp + tn) / (tp + tn + fp + fn)
+        print("Precision:", precision)
+        print("Recall:",  recall)
+        print("F-measure:", f_measure)
+        print("Accuracy:", accuracy)
+em = EM()
+em.cal_metrics()
+from sklearn.metrics import average_precision_score
+y_true = [0, 1, 1, 0, 1, 1]
+y_score = [0.1, 0.4, 0.35, 0.8, 0.65, 0.9]
+avg_precision = average_precision_score(y_true, y_score)
+print(f"Average precision-recall score: {avg_precision:.6f}")
+------------------------------------------------------------------------------------------------------------
+
+Q)
+Given a dataset of 20_newsgroups, build a classification model using
+Naïve Bayes classifier that can accurately classify each review as either
+positive or negative.
+
+
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score
+class NaiveBayes:
+    def __init__(self):
+        self.class_probabilities = None
+        self.word_probabilities = None
+    def fit(self, X, y):
+        num_samples, num_features = X.shape
+        self.classes = np.unique(y)
+        num_classes = len(self.classes)
+        self.class_probabilities = np.zeros(num_classes)
+        for i, c in enumerate(self.classes):
+            self.class_probabilities[i] = np.sum(y == c) / num_samples
+        self.word_probabilities = np.zeros((num_classes, num_features))
+        for i, c in enumerate(self.classes):
+            X_c = X[y == c]
+            total_word_counts = np.sum(X_c, axis=0)
+            self.word_probabilities[i] = (total_word_counts + 1) /  (np.sum(total_word_counts) + num_features)
+    def predict (self, X):
+        num_samples, _ = X.shape
+        predictions = np.zeros(num_samples, dtype=int)
+        for i in range(num_samples):
+           probabilities = np.zeros(len(self.classes))
+            for j, c in enumerate(self.classes):
+                probabilities[j] = np.log(self.class_probabilities[j]) +np.sum(np.log(self.word_probabilities[j]) * X[i])
+            predictions[i] = np.argmax(probabilities)
+        return predictions
+corpus = [
+"This movie is great and enjoyable.",
+"I really liked this film!",
+"The acting was terrible.",
+"Such a waste of time.",
+"Not worth watching."
+]
+labels = [0, 1, 0, 0, 0]
+X_train, X_test, y_train, y_test = train_test_split(corpus, labels, test_size=0.2, random_state=42)
+vectorizer = CountVectorizer()
+X_train_vectorized = vectorizer.fit_transform(X_train)
+X_test_vectorized = vectorizer.transform(X_test)
+classifier = MultinomialNB()
+classifier.fit(X_train_vectorized, y_train)
+predictions = classifier.predict(X_test_vectorized)
+for i, (test, prediction) in enumerate(zip(X_test, predictions)):
+    print(f"Test Data: '{test}'")
+    print(f"Predicted Label: {prediction}")
+accuracy = accuracy_score(y_test, predictions)
+print("Accuracy:", accuracy)
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Q)
+Given a dataset of 20_newsgroups, build a classification model using
+SVM classifier that can accurately classify documents into categories like
+“alt.atheism,” “soc.religion.christian,” “comp.graphics,” or “sci.med,”
+
+
+------------------------------------------------------------------------------------------------------------------------
+Q)
+Consider the following corpus:
+"India has the second-largest population in the world.",
+" It is surrounded by oceans from three sides which are Bay Of Bengal in
+the east, the Arabian Sea in the west and Indian oceans in the south.",
+"Tiger is the national animal of India.",
+"Peacock is the national bird of India.",
+"Mango is the national fruit of India."
+Build a question-answering system and query for "Which is the national
+bird of India?"
+
+
+import nltk
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+documents = [
+    "India has the second-largest population in the world..",
+    "It is surrounded by oceans from three sides which are Bay Of Bengal in the east, the Arabian Sea in the west and Indian oceans in the south.",
+    "Tiger is the national animal of India.",
+    "Peacock is the national bird of India.",
+    "Mango is the national fruit of India."
+]
+nltk.download('stopwords')
+stop_words = nltk.corpus.stopwords.words('english')
+def tokenize(text):
+    tokens = nltk.word_tokenize(text)
+    tokens = [token.lower() for token in tokens if token.isalnum()]
+    return tokens
+vectorizer = TfidfVectorizer(tokenizer=tokenize, stop_words=stop_words)
+tfidf_matrix = vectorizer.fit_transform(documents)
+def answer_question(query, documents, tfidf_matrix, vectorizer):
+    query_vector = vectorizer.transform([query])
+    similarities = cosine_similarity(query_vector, tfidf_matrix)
+    most_similar_idx = similarities.argmax()
+    return documents[most_similar_idx]
+query = "Which is the national bird of India?"
+answer = answer_question(query, documents, tfidf_matrix, vectorizer)
+print("Answer:", answer)
+------------------------------------------------------------------------------------------------------------------------------
+Q)
+Apply the clustering algorithm(e.g., K-means or hierarchical clustering)
+for a given set of documents
+"Machine learning is the study of computer algorithms that improve
+through experience.",
+"Deep learning is a subset of machine learning.",
+"Natural language processing is a field of artificial intelligence.",
+"Computer vision is a field of study that enables computers to interpret
+the visual world.",
+"Reinforcement learning is a machine learning algorithm.",
+"Information retrieval is the process of obtaining information from a
+collection.",
+"Text mining is the process of deriving high-quality information from
+text.",
+"Data clustering is the task of dividing a set of objects into groups.",
+"Hierarchical clustering builds a tree of clusters.",
+"K-means clustering is a method of vector quantization.”
+
+
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+docs = [
+    "Machine learning is the study of computer algorithms that improves automatically through experience.",
+    "Deep learning is a subset of machine learning.",
+    "Natural language processing is a field of artificial intelligence.",
+    "Computer vision is a field of study that enables computers to interpret and understand the visual world.",
+    "Reinforcement learning is a type of machine learning algorithm that teaches an agent how to make decisions in an environment by rewarding desired behaviors.",
+    "Information retrieval is the process of obtaining information from a collection of documents.",
+    "Text mining is the process of deriving high-quality information from text.",
+    "Data clustering is the task of dividing a set of objects into clusters.",
+    "Hierarchical clustering builds a tree of clusters.",
+    "K-means clustering is a method of vector quantization."
+]
+vec= TfidfVectorizer()
+X = vec.fit_transform(docs)
+k = 3
+kmeans = KMeans(n_clusters = k)
+kmeans.fit(X)
+silhouette_avg = silhouette_score(X, kmeans.labels_)
+print("Silhouette Score:", silhouette_avg)
+for i in range(k):
+    cluster_docs_indices = np.where(kmeans.labels_ == i)[0]
+    cluster_docs = [docs[x] for x in cluster_docs_indices]
+    print(f"\nCluster {i+1}")
+    for doc in cluster_docs:
+        print("-", doc)
+"""
+-------------------------------------------------------------------------------------------------------------------------------
+
+Q)
+Given a set of predicted binary labels (y_pred) and their corresponding
+true binary labels (y_true), evaluate the performance by calculating
+precision, recall, f1-score and average precision of a binary classification
+model using standard metrics from scikit-learn module [20]
+y_true = [0, 1, 1, 0, 1]
+y_scores = [0.1, 0.8, 0.6, 0.3, 0.9]
+
+
+import random
+class EM:
+    def __init__(self):
+        total = int(input("Total number of documents:"))
+        ret = int(input("Total number of retrieved documents:"))
+        rel = int(input("Total number of relevant documents:"))
+        self.docs = set([f"d{x+1}" for x in range(total)])
+        print("Documents:", self.docs)
+        self.ret_set = set(random.sample(list(self.docs), ret))
+        print("Retrieved documents:", self.ret_set)
+        self.rel_set = set(random.sample(list(self.docs), rel))
+        print("Relevant documents:", self.rel_set)
+    def cal_metrics(self):
+        tp = len(self.ret_set.intersection(self.rel_set))
+        tn = len(self.docs.difference(self.ret_set.union(self.rel_set)))
+        fp= len(self.ret_set.difference(self.rel_set)) 
+        fn = len(self.rel_set.difference(self.ret_set))
+        print("True Positive:", tp)
+        print("True Negative:", tn)
+        print("False Positive:", fp)
+        print("False Negative:", fn)
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+        f_measure = 2 * precision * recall / (precision + recall)
+        accuracy = (tp + tn) / (tp + tn + fp + fn)
+        print("Precision:", precision)
+        print("Recall:",  recall)
+        print("F-measure:", f_measure)
+        print("Accuracy:", accuracy)
+em = EM()
+em.cal_metrics()
+"""
+
+# Average Precision
+"""
+from sklearn.metrics import average_precision_score
+y_true = [0, 1, 1, 0, 1, 1]
+y_score = [0.1, 0.8, 0.6, 0.3, 0.9]
+avg_precision = average_precision_score(y_true, y_score)
+print(f"Average precision-recall score: {avg_precision:.6f}")
+----------------------------------------------------------------------------------------------------------------------------------------
+Q)
+Implement an inverted index construction algorithm for the following
+two documents: [20]
+document1 = "our class meeting starts soon"
+document2 = "my class starts at 6."
+
+import re
+import nltk
+from nltk.corpus import stopwords
+class Inverted_Index:
+    def __init__(self):
+        self.index = {}
+        self.docs = {}
+    def tokenize(self, text):
+        words = re.findall(r"\b\w+\b", text.lower())
+        stop_words = set(stopwords.words("english"))
+        filtered_words = set(x for x in words if x not in stop_words)
+        return filtered_words
+    def index_doc(self, doc_id, text):
+        tokens = self.tokenize(text)
+        for token in tokens:
+            if(token not in self.index):
+                self.index[token] = []
+            self.index[token].append(doc_id)
+        self.docs[doc_id] = text
+    def retrieve_doc(self, query):
+        tokens = self.tokenize(query)
+        rel_doc_id = set()
+        for token in tokens:
+            if(token in self.index):
+                rel_doc_id.update(self.index[token])
+        res = {}
+        for doc_id in rel_doc_id:
+            res[doc_id] = self.docs[doc_id]
+        return res
+    def disp(self, res, form):
+        print(f"{form} documents are:")
+        for doc_id, doc in res.items():
+            print(f"{doc_id} : {doc}")
+inverted_index = Inverted_Index()
+inverted_index.index_doc(1, "our class meeting starts soon")
+inverted_index.index_doc(2, "my class starts at 6")
+inverted_index.disp(inverted_index.docs, "Present")
+query = input("Please enter your query to retrieve documents: ")
+res = inverted_index.retrieve_doc(query)
+inverted_index.disp(res, "Retrieved")
+-------------------------------------------------------------------------------------------------------------------------
+
+Q)
+Build a simple document retrieval system using the constructed index to
+find the documents containing terms “class meeting”
+
+
+import re
+import nltk
+from nltk.corpus import stopwords
+class Inverted_Index:
+    def __init__(self):
+        self.index = {}
+        self.docs = {}
+    def tokenize(self, text):
+        words = re.findall(r"\b\w+\b", text.lower())
+        stop_words = set(stopwords.words("english"))
+        filtered_words = set(x for x in words if x not in stop_words)
+        return filtered_words
+    def index_doc(self, doc_id, text):
+        tokens = self.tokenize(text)
+        for token in tokens:
+            if(token not in self.index):
+                self.index[token] = []
+            self.index[token].append(doc_id)
+        self.docs[doc_id] = text
+    def retrieve_doc(self, query):
+        tokens = self.tokenize(query)
+        rel_doc_id = set()
+        for token in tokens:
+            if(token in self.index):
+                rel_doc_id.update(self.index[token])
+        res = {}
+        for doc_id in rel_doc_id:
+            res[doc_id] = self.docs[doc_id]
+        return res
+    def disp(self, res, form):
+        print(f"{form} documents are:")
+        for doc_id, doc in res.items():
+            print(f"{doc_id} : {doc}")
+inverted_index = Inverted_Index()
+inverted_index.index_doc(1, "Inverted index is a data structure has a class meeting.")
+inverted_index.index_doc(2, "This is an example of index construction algorithm.")
+inverted_index.index_doc(3, "The algorithm constructs an inverted index from documents.")
+inverted_index.disp(inverted_index.docs, "Present")
+query = input("Please enter your query to retrieve documents: ")
+res = inverted_index.retrieve_doc(query)
+inverted_index.disp(res, "Retrieved")
+---------------------------------------------------------------------------------------------------------------------------
+Q)
+Implement a clustering algorithm (e.g., K-means or hierarchical
+clustering). Also, apply the clustering algorithm to a set of documents
+and evaluate the clustering results.
+
+
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+docs = [
+    "Machine learning is the study of computer algorithms that improves automatically through experience.",
+    "Deep learning is a subset of machine learning.",
+    "Natural language processing is a field of artificial intelligence.",
+    "Computer vision is a field of study that enables computers to interpret and understand the visual world.",
+    "Reinforcement learning is a type of machine learning algorithm that teaches an agent how to make decisions in an environment by rewarding desired behaviors.",
+    "Information retrieval is the process of obtaining information from a collection of documents.",
+    "Text mining is the process of deriving high-quality information from text.",
+    "Data clustering is the task of dividing a set of objects into clusters.",
+    "Hierarchical clustering builds a tree of clusters.",
+    "K-means clustering is a method of vector quantization."
+]
+vec= TfidfVectorizer()
+X = vec.fit_transform(docs)
+k = 3
+kmeans = KMeans(n_clusters = k)
+kmeans.fit(X)
+silhouette_avg = silhouette_score(X, kmeans.labels_)
+print("Silhouette Score:", silhouette_avg)
+for i in range(k):
+    cluster_docs_indices = np.where(kmeans.labels_ == i)[0]
+    cluster_docs = [docs[x] for x in cluster_docs_indices]
+    print(f"\nCluster {i+1}")
+    for doc in cluster_docs:
+        print("-", doc)
+------------------------------------------------------------------------------------------------
+Q)Implement a learning to rank algorithm (e.g., RankSVM or
+RankBoost).
+
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+def train_ranksvm(X_train,y_train):
+ svm=SVC(kernel='linear')
+ svm.fit(X_train,y_train)
+ return svm
+def predict_ranksvm(model,X_test):
+ rankings=model.decision_function(X_test)
+ return rankings
+if __name__=='__main__':
+
+X,y=make_classification(n_samples=100,n_features=20,n_classes=2,random_state=42)
+ X_train,X_test,y_train,y_test=train_test_split(X,y, test_size=0.2,random_state=42)
+ scaler=StandardScaler()
+ X_train_scaled=scaler.fit_transform(X_train)
+ X_test_scaled=scaler.transform(X_test)
+ ranksvm_model=train_ranksvm(X_train_scaled,y_train)
+ rankings=predict_ranksvm(ranksvm_model,X_test_scaled)
+ y_pred=(rankings>0).astype(int)
+ accuracy=accuracy_score(y_test,y_pred)
+ print("Accuracy: ",accuracy)
+
+------------------------------------------------------------------------------------------------------------
+
+Q)Train the ranking model using labelled data and evaluate its
+effectiveness.
+import numpy as np
+from sklearn.svm import SVC
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import average_precision_score
+X,y=make_classification(n_samples=1000,n_features=10,n_classes=2,random_state=42)
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+model=SVC(kernel='linear')
+model.fit(X_train,y_train)
+y_pred=model.predict(X_test)
+map_score=average_precision_score(y_test,y_pred)
+print("Mean Average Precison (MAP): ",map_score)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
